@@ -1,3 +1,5 @@
+// Bron: https://www.javatpoint.com/how-to-read-xml-file-in-java
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
@@ -12,6 +14,7 @@ public class ReadXMLFile {
         try {
 //creating a constructor of file class and parsing an XML file
             switch (aantalProcessen) {
+                case 5: file = new File("voorbeeld.xml"); break;
                 case 10000: file = new File("processen10000.xml"); break;
                 case 20000: file = new File("processen20000.xml"); break;
                 case 50000: file = new File("processen50000.xml"); break;
