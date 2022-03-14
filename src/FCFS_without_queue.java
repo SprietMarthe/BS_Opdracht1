@@ -1,3 +1,5 @@
+// Bron: https://www.thejavaprogrammer.com/java-program-first-come-first-serve-fcfs-scheduling-algorithm/?fbclid=IwAR1GqmM53vW0g3DXpoccgINH7YXbX2_22euhNiuYnysxKm6TZLWsGJVm0fk
+
 import java.util.Scanner;
 
 public class FCFS_without_queue {
