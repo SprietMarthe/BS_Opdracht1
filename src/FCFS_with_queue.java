@@ -32,7 +32,7 @@ public class FCFS_with_queue {
 
         try {
 //creating a constructor of file class and parsing an XML file
-            File file = new File("C:\\Users\\bekem\\OneDrive - KU Leuven\\KULeuven\\3eBach\\2e_semester\\Besturingsystemen2\\processen\\voorbeeld.xml");
+            File file = new File("voorbeeld.xml");
 //an instance of factory that gives a document builder
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 //an instance of builder to parse the specified xml file
