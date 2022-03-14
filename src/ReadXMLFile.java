@@ -6,10 +6,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 public class ReadXMLFile {
-    public static void readingXMLFile(int aantalProcessen){
-        int pid[] = new int[aantalProcessen];
-        int arrivaltime[] = new int[aantalProcessen];
-        int servicetime[] = new int[aantalProcessen];
+    public static void readingXMLFile(int aantalProcessen, int pid[], int arrivaltime[], int servicetime[]){
         int p = 0;
         File file = null;
         try {
