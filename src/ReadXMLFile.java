@@ -7,31 +7,31 @@ import org.w3c.dom.Element;
 import java.io.File;
 public class ReadXMLFile
 {
-    public static void main(String argv[])
-    {
-        try
-        {
+    public static void main(String argv[]){
+        int aantalProcessen = 10000;
+        int pid[] = new int[aantalProcessen];
+        int arrivaltime[] = new int[aantalProcessen];
+        int servicetime[] = new int[aantalProcessen];
+        int p = 0;
+        try {
 //creating a constructor of file class and parsing an XML file  
-            File file = new File("C:\\Users\\MartheSpriet\\OneDrive - KU Leuven\\Documents\\Universiteit\\B3\\Tweede semester\\Besturingssystemen2\\XML\\processen10000.xml");
+            File file = new File("processen10000.xml");
 //an instance of factory that gives a document builder  
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 //an instance of builder to parse the specified xml file  
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(file);
             doc.getDocumentElement().normalize();
-            System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
             NodeList nodeList = doc.getElementsByTagName("process");
 // nodeList is not iterable, so we are using for loop  
-            for (int itr = 0; itr < nodeList.getLength(); itr++)
-            {
+            for (int itr = 0; itr < nodeList.getLength(); itr++) {
                 Node node = nodeList.item(itr);
-                System.out.println("\nProcess Name :" + node.getNodeName());
-                if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) node;
-                    System.out.println("pid: "+ eElement.getElementsByTagName("pid").item(0).getTextContent());
-                    System.out.println("arrival time: "+ eElement.getElementsByTagName("arrivaltime").item(0).getTextContent());
-                    System.out.println("servicetime: "+ eElement.getElementsByTagName("servicetime").item(0).getTextContent());
+                    p++;
+                    pid[p-1] = Integer.parseInt(eElement.getElementsByTagName("pid").item(0).getTextContent());
+                    arrivaltime[p-1] = Integer.parseInt(eElement.getElementsByTagName("arrivaltime").item(0).getTextContent());
+                    servicetime[p-1] = Integer.parseInt(eElement.getElementsByTagName("servicetime").item(0).getTextContent());
                 }
             }
         }
