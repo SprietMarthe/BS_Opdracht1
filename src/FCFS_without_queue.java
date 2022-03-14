@@ -9,7 +9,7 @@ public class FCFS_without_queue {
     static int turnaroundtime[];
     static int waittime[];
     static int temp;
-    static float avgwaittime = 0, avgturnaroundtime = 0;
+    static float avgnormalizedturnaroundtime = 0, avgturnaroundtime = 0;
 
     public static void main(String argv[]){
         Scanner sc = new Scanner(System.in);
@@ -37,13 +37,13 @@ public class FCFS_without_queue {
     }
 
     private static void printResultaten() {
-        System.out.println("\npid  arrival  brust  complete turn waiting");
+        System.out.println("\npid  arrival  service  end turnaround wait normalized - time ");
         for(int  i = 0 ; i< aantalProcessen;  i++) {
-            System.out.println(pid[i] + "  \t " + arrivaltime[i] + "\t" + servicetime[i] + "\t" + endtime[i] + "\t" + turnaroundtime[i] + "\t"  + waittime[i] ) ;
+            System.out.println(pid[i] + "\t\t" + arrivaltime[i] + "\t\t" + servicetime[i] + "\t\t" + endtime[i] + "\t\t" + turnaroundtime[i] + "\t\t"  + waittime[i] ) ;
         }
-        System.out.println("\naverage waiting time: "+ (avgwaittime/aantalProcessen));
-        System.out.println("average turnaround time:"+(avgturnaroundtime/aantalProcessen));
-}
+        System.out.println("average turnaround time: "+ (avgturnaroundtime/aantalProcessen));
+        System.out.println("\naverage normalized turnaround time: "+ (avgnormalizedturnaroundtime/aantalProcessen));
+    }
 
     private static void endtimeBerekenen() {
         for(int  i = 0 ; i < aantalProcessen; i++) {
@@ -57,8 +57,8 @@ public class FCFS_without_queue {
             }
             turnaroundtime[i] = endtime[i] - arrivaltime[i];
             waittime[i] = turnaroundtime[i] - servicetime[i];
-            avgwaittime += waittime[i];
             avgturnaroundtime += turnaroundtime[i];
+            avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
         }
     }
 
