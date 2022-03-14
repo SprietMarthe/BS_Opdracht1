@@ -1,4 +1,3 @@
-/*
 public class FCFS_without_queue {
     public static void main(String argv[]){
         int aantalProcessen = 10000;
@@ -11,4 +10,3 @@ public class FCFS_without_queue {
 }
 
 
-*/
