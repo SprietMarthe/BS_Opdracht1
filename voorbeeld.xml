@@ -1,0 +1,26 @@
+<processlist>
+	<process>
+		<pid>1</pid>
+		<arrivaltime>0</arrivaltime>
+		<servicetime>3</servicetime>
+	</process>
+	<process>
+		<pid>2</pid>
+		<arrivaltime>2</arrivaltime>
+		<servicetime>6</servicetime>
+	</process>
+	<process>
+		<pid>3</pid>
+		<arrivaltime>4</arrivaltime>
+		<servicetime>4</servicetime>
+	</process>
+	<process>
+		<pid>4</pid>
+		<arrivaltime>6</arrivaltime>
+		<servicetime>5</servicetime>
+	</process>
+	<process>
+		<pid>5</pid>
+		<arrivaltime>8</arrivaltime>
+		<servicetime>2</servicetime>
+	</process>
