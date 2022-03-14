@@ -6,17 +6,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 public class ReadXMLFile {
-    public static void readingXMLFile(int aantalProcessen, int pid[], int arrivaltime[], int servicetime[]){
+    public static void readingXMLFile(int aantalProcessen, int[] pid, int[] arrivaltime, int[] servicetime){
         int p = 0;
         File file = null;
         try {
 //creating a constructor of file class and parsing an XML file
             switch (aantalProcessen) {
-                case 5: file = new File("voorbeeld.xml"); break;
-                case 10000: file = new File("processen10000.xml"); break;
-                case 20000: file = new File("processen20000.xml"); break;
-                case 50000: file = new File("processen50000.xml"); break;
-                default: break;
+                case 5 -> file = new File("voorbeeld.xml");
+                case 10000 -> file = new File("processen10000.xml");
+                case 20000 -> file = new File("processen20000.xml");
+                case 50000 -> file = new File("processen50000.xml");
+                default -> {
+                }
             }
 //an instance of factory that gives a document builder
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
