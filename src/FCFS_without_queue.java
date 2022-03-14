@@ -2,18 +2,18 @@ import java.util.Scanner;
 
 public class FCFS_without_queue {
     static int aantalProcessen;
-    static int pid[];
-    static int arrivaltime[];
-    static int servicetime[];
-    static int endtime[];
-    static int turnaroundtime[];
-    static int waittime[];
+    static int[] pid;
+    static int[] arrivaltime;
+    static int[] servicetime;
+    static int[] endtime;
+    static int[] turnaroundtime;
+    static int[] waittime;
     static int temp;
-    static float avgnormalizedturnaroundtime = 0, avgturnaroundtime = 0;
+    static float avgnormalizedturnaroundtime = 0, avgturnaroundtime = 0, avgwaittime = 0;
 
-    public static void main(String argv[]){
+    public static void main(String[] argv){
         Scanner sc = new Scanner(System.in);
-        System.out.println("Geef het aantal processen in (5/10000/20000/50000)");
+        System.out.println("Geef het aantal processen in (5/10000/20000/50000):");
         aantalProcessen = sc.nextInt();
 
         initialiseerArrays();
@@ -43,6 +43,7 @@ public class FCFS_without_queue {
         }
         System.out.println("average turnaround time: "+ (avgturnaroundtime/aantalProcessen));
         System.out.println("\naverage normalized turnaround time: "+ (avgnormalizedturnaroundtime/aantalProcessen));
+        System.out.println("\naverage wait time: "+ (avgwaittime/aantalProcessen));
     }
 
     private static void endtimeBerekenen() {
@@ -57,6 +58,7 @@ public class FCFS_without_queue {
             }
             turnaroundtime[i] = endtime[i] - arrivaltime[i];
             waittime[i] = turnaroundtime[i] - servicetime[i];
+            avgwaittime += waittime[i];
             avgturnaroundtime += turnaroundtime[i];
             avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
         }
