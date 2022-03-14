@@ -6,7 +6,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,7 +14,7 @@ import java.util.Queue;
 
 public class FCFS_with_queue {
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         int aantalProcessen = 0;
         Queue<Integer> readyQueue = null;
         List<Double> arrivaltimes = null;
@@ -43,8 +42,8 @@ public class FCFS_with_queue {
             NodeList nodeList = doc.getElementsByTagName("process");
 // nodeList is not iterable, so we are using for loop
             readyQueue = new LinkedList<>();
-            arrivaltimes = new ArrayList<Double>();
-            servicetimes = new ArrayList<Double>();
+            arrivaltimes = new ArrayList<>();
+            servicetimes = new ArrayList<>();
             for (int itr = 0; itr < nodeList.getLength(); itr++) {
                 Node node = nodeList.item(itr);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -61,7 +60,7 @@ public class FCFS_with_queue {
 
 // process parameters berekend
         int aantalJiffys = 0;
-        while (readyQueue.size() > 0) {
+        for (int i=0; i<aantalProcessen; i++) {
             int process = readyQueue.remove();
             starttijd.add(process-1, (double) aantalJiffys);
             eindtijd.add(process-1, aantalJiffys+servicetimes.get(process-1));
