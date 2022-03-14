@@ -5,18 +5,22 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
-public class ReadXMLFile
-{
-    public static void main(String argv[]){
-        int aantalProcessen = 10000;
+public class ReadXMLFile {
+    public static void readingXMLFile(int aantalProcessen){
         int pid[] = new int[aantalProcessen];
         int arrivaltime[] = new int[aantalProcessen];
         int servicetime[] = new int[aantalProcessen];
         int p = 0;
+        File file = null;
         try {
-//creating a constructor of file class and parsing an XML file  
-            File file = new File("processen10000.xml");
-//an instance of factory that gives a document builder  
+//creating a constructor of file class and parsing an XML file
+            switch (aantalProcessen) {
+                case 10000: file = new File("processen10000.xml"); break;
+                case 20000: file = new File("processen20000.xml"); break;
+                case 50000: file = new File("processen50000.xml"); break;
+                default: break;
+            }
+//an instance of factory that gives a document builder
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 //an instance of builder to parse the specified xml file  
             DocumentBuilder db = dbf.newDocumentBuilder();
