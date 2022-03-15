@@ -5,18 +5,9 @@
 import java.util.Scanner;
 
 public class Main {
-    static int aantalProcessen;
-    static int[] pid;
-    static int[] arrivaltime;
-    static int[] servicetime;
-    static int[] remainingtime;
-    static int[] endtime;
-    static int[] turnaroundtime;
-    static int[] waittime;
-    static int[] time;                                              // voor visueel nakijken
-    static int nodigeTijd;
-    static int temp;
-    static float avgnormalizedturnaroundtime = 0, avgturnaroundtime = 0, avgwaittime = 0;
+    static int aantalProcessen, nodigeTijd;
+    static int[] pid, arrivaltime, servicetime, remainingtime, endtime, turnaroundtime, waittime, time;                                              // voor visueel nakijken
+    static float avgnormalizedturnaroundtime, avgturnaroundtime, avgwaittime;
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
@@ -28,7 +19,6 @@ public class Main {
         initialiseerArrays();
         ReadXMLFile.readingXMLFile(aantalProcessen, pid, arrivaltime, servicetime);
         nodigeTijd = nodigeTijdBerekenen();
-        time = new int[nodigeTijd];
 
         switch (algoritme) {
             case "FCFS" -> berekenFCFS();
@@ -49,6 +39,10 @@ public class Main {
         endtime = new int[aantalProcessen];
         turnaroundtime = new int[aantalProcessen];
         waittime = new int[aantalProcessen];
+
+        avgnormalizedturnaroundtime = 0;
+        avgturnaroundtime = 0;
+        avgwaittime = 0;
     }
     private static void berekenGevraagde(int i) {
         waittime[i] = endtime[i]-arrivaltime[i]-servicetime[i];
@@ -57,6 +51,13 @@ public class Main {
         avgwaittime += waittime[i];
         avgturnaroundtime += turnaroundtime[i];
         avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
+    }
+    private static int nodigeTijdBerekenen() {
+        nodigeTijd = 0;
+        for (int i = 0; i<aantalProcessen; i++)
+            nodigeTijd += servicetime[i];
+        time = new int[nodigeTijd];
+        return nodigeTijd;
     }
     private static void printResultaten() {
         System.out.println("\npid  arrival  service  end turnaround wait - time ");
@@ -74,25 +75,22 @@ public class Main {
 
 
 
-    // FCFS zonder queue
+    // --------------------First Come First Serve (zonder queue) (FCFS)--------------------
     static void berekenFCFS() {
         for(int i = 0 ; i < aantalProcessen; i++) {
-            if(i == 0)
+            if( arrivaltime[i] > endtime[i-1] || i == 0)
                 endtime[i] = arrivaltime[i] + servicetime[i];
-            else {
-                if( arrivaltime[i] > endtime[i-1])
-                    endtime[i] = arrivaltime[i] + servicetime[i];
-                else
-                    endtime[i] = endtime[i-1] + servicetime[i];
-            }
+            else
+                endtime[i] = endtime[i-1] + servicetime[i];
             berekenGevraagde(i);
-
         }
     }
 
 
 
-    // SRT
+
+
+    // --------------------Shortest Remaining Time (SRT)--------------------
     static void berekenSRT() {
         System.arraycopy(servicetime, 0, remainingtime, 0, aantalProcessen);
 
@@ -101,7 +99,7 @@ public class Main {
             remainingtime[processWithSRT]--;
             if (remainingtime[processWithSRT] == 0)
                 endtime[processWithSRT] = i + 1;
-            time[i] = processWithSRT + 1;                          // voor visueel nakijken
+            time[i] = processWithSRT + 1;                          // voor visueel
         }
         for (int i = 0; i<aantalProcessen; i++) {
             berekenGevraagde(i);
@@ -117,17 +115,12 @@ public class Main {
             }
         return processWithSRT;
     }
-    private static int nodigeTijdBerekenen() {
-        nodigeTijd = 0;
-        for (int i = 0; i<aantalProcessen; i++)
-            nodigeTijd += servicetime[i];
-        return nodigeTijd;
-    }
 
 
 
 
-    // HRRN
+
+    // --------------------Highest Response Ratio Next (HRRN)--------------------
     static void berekenHRRN() {
         for(int i = 0; i < nodigeTijd; i++) {
             int processWithHRRN = grootsteTijdHRRN(i);
@@ -139,7 +132,6 @@ public class Main {
             berekenGevraagde(i);
         }
     }
-
     private static int grootsteTijdHRRN(int huidigeTijd) {
         int processWithHRRN = 0;
         double max = -1;
