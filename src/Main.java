@@ -20,16 +20,18 @@ public class Main {
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
+        System.out.print("Geef het scheduling algortime in (FCFS/SRT/HRRN):");
+        String algoritme = sc.next();
         System.out.print("Geef het aantal processen in (5/10000/20000/50000):");
         aantalProcessen = sc.nextInt();
 
         initialiseerArrays();
         ReadXMLFile.readingXMLFile(aantalProcessen, pid, arrivaltime, servicetime);
+        nodigeTijd = nodigeTijdBerekenen();
+        time = new int[nodigeTijd];
 
-        System.out.print("Geef het scheduling algortime in (FCFS/SRT/HRRN):");
-        String algoritme = sc.next();
         switch (algoritme) {
-            case "FCFR" -> berekenFCFS();
+            case "FCFS" -> berekenFCFS();
             case "SRT" -> berekenSRT();
             case "HRRN" -> berekenHRRN();
             default -> {
@@ -48,6 +50,14 @@ public class Main {
         turnaroundtime = new int[aantalProcessen];
         waittime = new int[aantalProcessen];
     }
+    private static void berekenGevraagde(int i) {
+        waittime[i] = endtime[i]-arrivaltime[i]-servicetime[i];
+        turnaroundtime[i] = servicetime[i] + waittime[i];
+
+        avgwaittime += waittime[i];
+        avgturnaroundtime += turnaroundtime[i];
+        avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
+    }
     private static void printResultaten() {
         System.out.println("\npid  arrival  service  end turnaround wait - time ");
         for(int  i = 0; i< aantalProcessen;  i++) {
@@ -62,6 +72,8 @@ public class Main {
     }
 
 
+
+
     // FCFS zonder queue
     static void berekenFCFS() {
         for(int i = 0 ; i < aantalProcessen; i++) {
@@ -73,19 +85,16 @@ public class Main {
                 else
                     endtime[i] = endtime[i-1] + servicetime[i];
             }
-            turnaroundtime[i] = endtime[i] - arrivaltime[i];
-            waittime[i] = turnaroundtime[i] - servicetime[i];
-            avgwaittime += waittime[i];
-            avgturnaroundtime += turnaroundtime[i];
-            avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
+            berekenGevraagde(i);
+
         }
     }
 
+
+
     // SRT
     static void berekenSRT() {
-        nodigeTijd = nodigeTijdBerekenen();
         System.arraycopy(servicetime, 0, remainingtime, 0, aantalProcessen);
-        time = new int[nodigeTijd];                   // voor visueel nakijken
 
         for(int i = 0; i < nodigeTijd; i++) {
             int processWithSRT = kleinsteTijdSRT(i);
@@ -94,14 +103,8 @@ public class Main {
                 endtime[processWithSRT] = i + 1;
             time[i] = processWithSRT + 1;                          // voor visueel nakijken
         }
-
-        for (int i = 0; i<aantalProcessen; i++){
-            waittime[i] = endtime[i]-arrivaltime[i]-servicetime[i];
-            turnaroundtime[i] = servicetime[i] + waittime[i];
-
-            avgwaittime += waittime[i];
-            avgturnaroundtime += turnaroundtime[i];
-            avgnormalizedturnaroundtime += turnaroundtime[i]/servicetime[i];
+        for (int i = 0; i<aantalProcessen; i++) {
+            berekenGevraagde(i);
         }
     }
     private static int kleinsteTijdSRT(int huidigeTijd) {
@@ -122,7 +125,32 @@ public class Main {
     }
 
 
+
+
     // HRRN
     static void berekenHRRN() {
+        for(int i = 0; i < nodigeTijd; i++) {
+            int processWithHRRN = grootsteTijdHRRN(i);
+            endtime[processWithHRRN] = i + servicetime[processWithHRRN];
+            time[i] = processWithHRRN + 1;                          // voor visueel
+            i += servicetime[processWithHRRN] - 1;
+        }
+        for (int i = 0; i<aantalProcessen; i++) {
+            berekenGevraagde(i);
+        }
+    }
+
+    private static int grootsteTijdHRRN(int huidigeTijd) {
+        int processWithHRRN = 0;
+        double max = -1;
+        double genormaliseerdeTAT = 0;
+        for (int i = 0; i<aantalProcessen; i++) {
+            genormaliseerdeTAT = (huidigeTijd - arrivaltime[i]) / servicetime[i];
+            if (arrivaltime[i] <= huidigeTijd && genormaliseerdeTAT>max && endtime[i] == 0) {
+                max = genormaliseerdeTAT;
+                processWithHRRN = i;
+            }
+        }
+        return processWithHRRN;
     }
 }
