@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 public class ReadXMLFile {
-    public static void readingXMLFile(int aantalProcessen, int[] pid, int[] arrivaltime, int[] servicetime){
+    public static void readingXMLFile(int aantalProcessen, int[] pid, int[] aankomsttijd, int[] bedieningstijd){
         int p = 0;
         File file = null;
         try {
@@ -33,8 +33,8 @@ public class ReadXMLFile {
                     Element eElement = (Element) node;
                     p++;
                     pid[p-1] = Integer.parseInt(eElement.getElementsByTagName("pid").item(0).getTextContent());
-                    arrivaltime[p-1] = Integer.parseInt(eElement.getElementsByTagName("arrivaltime").item(0).getTextContent());
-                    servicetime[p-1] = Integer.parseInt(eElement.getElementsByTagName("servicetime").item(0).getTextContent());
+                    aankomsttijd[p-1] = Integer.parseInt(eElement.getElementsByTagName("arrivaltime").item(0).getTextContent());
+                    bedieningstijd[p-1] = Integer.parseInt(eElement.getElementsByTagName("servicetime").item(0).getTextContent());
                 }
             }
         }

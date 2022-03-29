@@ -17,8 +17,8 @@ public class FCFS_with_queue {
     public static void main(String[] argv) {
         int aantalProcessen = 0;
         Queue<Integer> readyQueue = null;
-        List<Double> arrivaltimes = null;
-        List<Double> servicetimes = null;
+        List<Double> aankomsttijd = null;
+        List<Double> bedieningstijd = null;
 
         List<Double> starttijd = new ArrayList<>();
         List<Double> eindtijd = new ArrayList<>();
@@ -42,15 +42,15 @@ public class FCFS_with_queue {
             NodeList nodeList = doc.getElementsByTagName("process");
 // nodeList is not iterable, so we are using for loop
             readyQueue = new LinkedList<>();
-            arrivaltimes = new ArrayList<>();
-            servicetimes = new ArrayList<>();
+            aankomsttijd = new ArrayList<>();
+            bedieningstijd = new ArrayList<>();
             for (int itr = 0; itr < nodeList.getLength(); itr++) {
                 Node node = nodeList.item(itr);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) node;
                     readyQueue.add(Integer.parseInt(eElement.getElementsByTagName("pid").item(0).getTextContent()));
-                    arrivaltimes.add(Double.parseDouble(eElement.getElementsByTagName("arrivaltime").item(0).getTextContent()));
-                    servicetimes.add(Double.parseDouble(eElement.getElementsByTagName("servicetime").item(0).getTextContent()));
+                    aankomsttijd.add(Double.parseDouble(eElement.getElementsByTagName("arrivaltime").item(0).getTextContent()));
+                    bedieningstijd.add(Double.parseDouble(eElement.getElementsByTagName("servicetime").item(0).getTextContent()));
                     aantalProcessen++;
                 }
             }
@@ -58,26 +58,26 @@ public class FCFS_with_queue {
             e.printStackTrace();
         }
 
-// process parameters berekend
+// proces parameters berekend
         int aantalJiffys = 0;
         for (int i=0; i<aantalProcessen; i++) {
-            int process = readyQueue.remove();
-            starttijd.add(process-1, (double) aantalJiffys);
-            eindtijd.add(process-1, aantalJiffys+servicetimes.get(process-1));
-            wachttijd.add(process-1, aantalJiffys-arrivaltimes.get(process-1));
-            omlooptijd.add(process-1, wachttijd.get(process-1) + servicetimes.get(process-1));
-            genormaliseerdeOmlooptijd.add(process-1, omlooptijd.get(process-1)/servicetimes.get(process-1));
+            int proces = readyQueue.remove();
+            starttijd.add(proces-1, (double) aantalJiffys);
+            eindtijd.add(proces-1, aantalJiffys+bedieningstijd.get(proces-1));
+            wachttijd.add(proces-1, aantalJiffys-aankomsttijd.get(proces-1));
+            omlooptijd.add(proces-1, wachttijd.get(proces-1) + bedieningstijd.get(proces-1));
+            genormaliseerdeOmlooptijd.add(proces-1, omlooptijd.get(proces-1)/bedieningstijd.get(proces-1));
 
-            aantalJiffys += servicetimes.get(process-1);
+            aantalJiffys += bedieningstijd.get(proces-1);
         }
 
 
-// process parameters uitgeprint
-        System.out.println("PROCESS PARAMETERS");
+// proces parameters uitgeprint
+        System.out.println("PROCES PARAMETERS");
         for (int i=0; i<aantalProcessen; i++) {
-            System.out.println("Process " + (i+1) + ":");
-            System.out.println("arrival: " + arrivaltimes.get(i));
-            System.out.println("service: " + servicetimes.get(i));
+            System.out.println("Proces " + (i+1) + ":");
+            System.out.println("arrival: " + aankomsttijd.get(i));
+            System.out.println("service: " + bedieningstijd.get(i));
             System.out.println("start: " + starttijd.get(i));
             System.out.println("eind: " + eindtijd.get(i));
             System.out.println("wachttijd: " + wachttijd.get(i));
