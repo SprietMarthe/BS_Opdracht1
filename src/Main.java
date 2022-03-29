@@ -8,10 +8,10 @@ import java.util.Scanner;
 
 public class Main {
     static int aantalProcessen, huidigeTijd;
-    static int[] pid, arrivaltime, servicetime, remainingtime, starttime, endtime, turnaroundtime, waittime;                                              // voor visueel nakijken
-    static double avgnormalizedturnaroundtime, avgturnaroundtime, avgwaittime;
+    static int[] pid, aankomsttijd, bedieningstijd, resterendeTijd, starttijd, eindtijd, omlooptijd, wachttijd, genormaliseerdeOmlooptijd;                                              // voor visueel nakijken
+    static double gemiddeldeOmlooptijd, gemiddeldeGenormaliseerdeOmlooptijd, gemiddeldeWachttijd;
 
-    static Queue<Integer> readyqueue, nogToekomendeProcesses, queue1 , queue2, queue3, queue4, queue5;
+    static Queue<Integer> readyQueue, nogToekomendeProcesses, queue1 , queue2, queue3, queue4, queue5;
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
@@ -21,7 +21,7 @@ public class Main {
         aantalProcessen = sc.nextInt();
 
         initialiseerArrays();
-        ReadXMLFile.readingXMLFile(aantalProcessen, pid, arrivaltime, servicetime);
+        ReadXMLFile.readingXMLFile(aantalProcessen, pid, aankomsttijd, bedieningstijd);
 
         switch (algoritme) {
             case "FCFS" -> berekenFCFS();
@@ -42,48 +42,48 @@ public class Main {
 
     private static void initialiseerArrays() {
         pid = new int[aantalProcessen];
-        arrivaltime = new int[aantalProcessen];
-        servicetime = new int[aantalProcessen];
-        remainingtime = new int[aantalProcessen];
-        starttime = new int[aantalProcessen];
-        endtime = new int[aantalProcessen];
-        turnaroundtime = new int[aantalProcessen];
-        waittime = new int[aantalProcessen];
+        aankomsttijd = new int[aantalProcessen];
+        bedieningstijd = new int[aantalProcessen];
+        resterendeTijd = new int[aantalProcessen];
+        starttijd = new int[aantalProcessen];
+        eindtijd = new int[aantalProcessen];
+        omlooptijd = new int[aantalProcessen];
+        wachttijd = new int[aantalProcessen];
 
-        avgnormalizedturnaroundtime = 0;
-        avgturnaroundtime = 0;
-        avgwaittime = 0;
+        gemiddeldeOmlooptijd = 0;
+        gemiddeldeGenormaliseerdeOmlooptijd = 0;
+        gemiddeldeWachttijd = 0;
     }
     private static void berekenGevraagde(int i) {
-        waittime[i] = endtime[i]-arrivaltime[i]-servicetime[i];
-        turnaroundtime[i] = servicetime[i] + waittime[i];
+        wachttijd[i] = eindtijd[i]- aankomsttijd[i]-bedieningstijd[i];
+        omlooptijd[i] = bedieningstijd[i] + wachttijd[i];
 
-        avgwaittime += waittime[i];
-        avgturnaroundtime += turnaroundtime[i];
-        avgnormalizedturnaroundtime += (double) turnaroundtime[i]/servicetime[i];
+        gemiddeldeWachttijd += wachttijd[i];
+        gemiddeldeGenormaliseerdeOmlooptijd += omlooptijd[i];
+        gemiddeldeOmlooptijd += (double) omlooptijd[i]/bedieningstijd[i];
     }
-    private static boolean stillRemainingTime() {
-        int remainingTime=0;
+    private static boolean overigeResterendeTijd() {
+        int resterendeTijd=0;
         for (int i=0; i<aantalProcessen; i++){
-            remainingTime += remainingtime[i];
+            resterendeTijd += Main.resterendeTijd[i];
         }
-        return remainingTime > 0;
+        return resterendeTijd > 0;
     }
-    private static boolean stillUnfinishedProcesses() {
+    private static boolean overigeOnafgewerkteProcessen() {
         int aantalUnfinished=0;
         for (int i=0; i<aantalProcessen-1; i++){
-            if (endtime[i] == 0) aantalUnfinished++;
+            if (eindtijd[i] == 0) aantalUnfinished++;
         }
         return aantalUnfinished > 0;
     }
     private static void printResultaten() {
-        System.out.println("\npid  arrival  service  start   end turnaround wait - time ");
+        System.out.println("\npid  aankomst  bedienings  start   eind omloop wacht - tijd ");
         for(int  i = 0; i< aantalProcessen;  i++) {
-            System.out.println(pid[i] + "\t\t" + arrivaltime[i] + "\t\t" + servicetime[i] + "\t\t" + starttime[i]+ "\t\t" + endtime[i] + "\t\t" + turnaroundtime[i] + "\t\t"  + waittime[i] ) ;
+            System.out.println(pid[i] + "\t\t" + aankomsttijd[i] + "\t\t" + bedieningstijd[i] + "\t\t" + starttijd[i]+ "\t\t" + eindtijd[i] + "\t\t" + omlooptijd[i] + "\t\t"  + wachttijd[i] ) ;
         }
-        System.out.print("\naverage turnaround time: "+ (avgturnaroundtime/aantalProcessen));
-        System.out.print("\naverage normalized turnaround time: "+ (avgnormalizedturnaroundtime/aantalProcessen));
-        System.out.print("\naverage wait time: "+ (avgwaittime/aantalProcessen));
+        System.out.print("\ngemiddelde omlooptijd: "+ (gemiddeldeGenormaliseerdeOmlooptijd /aantalProcessen));
+        System.out.print("\ngemiddelde genormaliseerde omlooptijd: "+ (gemiddeldeOmlooptijd /aantalProcessen));
+        System.out.print("\ngemiddelde wachttijd: "+ (gemiddeldeWachttijd /aantalProcessen));
     }
 
 
@@ -92,13 +92,13 @@ public class Main {
     // -------------------- First Come First Serve (FCFS) --------------------
     static void berekenFCFS() {
         for(int i = 0 ; i < aantalProcessen; i++) {
-            if( i == 0 || arrivaltime[i] > endtime[i-1] ) {
-                starttime[i] = arrivaltime[i];
-                endtime[i] = arrivaltime[i] + servicetime[i];
+            if( i == 0 || aankomsttijd[i] > eindtijd[i-1] ) {
+                starttijd[i] = aankomsttijd[i];
+                eindtijd[i] = aankomsttijd[i] + bedieningstijd[i];
             }
             else {
-                starttime[i] = endtime[i-1];
-                endtime[i] = starttime[i] + servicetime[i];
+                starttijd[i] = eindtijd[i-1];
+                eindtijd[i] = starttijd[i] + bedieningstijd[i];
             }
             berekenGevraagde(i);
         }
@@ -110,16 +110,16 @@ public class Main {
 
     // -------------------- Shortest Remaining Time (SRT) --------------------
     static void berekenSRT() {
-        System.arraycopy(servicetime, 0, remainingtime, 0, aantalProcessen);
-        int processWithSRT;
+        System.arraycopy(bedieningstijd, 0, resterendeTijd, 0, aantalProcessen);
+        int procesMetSRT;
         huidigeTijd=0;
-        while (stillRemainingTime()){
-            processWithSRT = kleinsteTijdSRT();
-            if (processWithSRT>-1) {
-                if (starttime[processWithSRT] == 0 && arrivaltime[processWithSRT] != 0) starttime[processWithSRT] = huidigeTijd;
-                remainingtime[processWithSRT]--;
-                if (remainingtime[processWithSRT] == 0)
-                    endtime[processWithSRT] = huidigeTijd + 1;
+        while (overigeResterendeTijd()){
+            procesMetSRT = kleinsteTijdSRT();
+            if (procesMetSRT>-1) {
+                if (starttijd[procesMetSRT] == 0 && aankomsttijd[procesMetSRT] != 0) starttijd[procesMetSRT] = huidigeTijd;
+                resterendeTijd[procesMetSRT]--;
+                if (resterendeTijd[procesMetSRT] == 0)
+                    eindtijd[procesMetSRT] = huidigeTijd + 1;
             }
             huidigeTijd++;
         }
@@ -128,14 +128,14 @@ public class Main {
         }
     }
     private static int kleinsteTijdSRT() {
-        int processWithSRT = -1;
+        int procesMetSRT = -1;
         int min = Integer.MIN_VALUE-8;
         for (int i = 0; i<aantalProcessen; i++)
-            if (arrivaltime[i]<=huidigeTijd && remainingtime[i]<min && remainingtime[i] != 0) {
-                min = remainingtime[i];
-                processWithSRT = i;
+            if (aankomsttijd[i]<=huidigeTijd && resterendeTijd[i]<min && resterendeTijd[i] != 0) {
+                min = resterendeTijd[i];
+                procesMetSRT = i;
             }
-        return processWithSRT;
+        return procesMetSRT;
     }
 
 
@@ -144,14 +144,14 @@ public class Main {
 
     // -------------------- Highest Response Ratio Next (HRRN) --------------------
     static void berekenHRRN() {
-        int processWithHRRN;
+        int procesMetHRRN;
         huidigeTijd=0;
-        while (stillUnfinishedProcesses()){
-            processWithHRRN = grootsteTijdHRRN();
-            if(processWithHRRN>-1) {
-                endtime[processWithHRRN] = huidigeTijd + servicetime[processWithHRRN];
-                starttime[processWithHRRN] = endtime[processWithHRRN] -servicetime[processWithHRRN];
-                huidigeTijd += servicetime[processWithHRRN];
+        while (overigeOnafgewerkteProcessen()){
+            procesMetHRRN = grootsteTijdHRRN();
+            if(procesMetHRRN>-1) {
+                eindtijd[procesMetHRRN] = huidigeTijd + bedieningstijd[procesMetHRRN];
+                starttijd[procesMetHRRN] = eindtijd[procesMetHRRN] -bedieningstijd[procesMetHRRN];
+                huidigeTijd += bedieningstijd[procesMetHRRN];
             }
             else
                 huidigeTijd++;
@@ -161,17 +161,17 @@ public class Main {
         }
     }
     private static int grootsteTijdHRRN() {
-        int processWithHRRN = -1;
+        int procesMetHRRN = -1;
         double max = -1;
         double genormaliseerdeTAT = 0;
         for (int i = 0; i<aantalProcessen; i++) {
-            genormaliseerdeTAT = (huidigeTijd - arrivaltime[i]) / servicetime[i];
-            if (arrivaltime[i] <= huidigeTijd && genormaliseerdeTAT>max && endtime[i] == 0) {
+            genormaliseerdeTAT = (huidigeTijd - aankomsttijd[i]) / bedieningstijd[i];
+            if (aankomsttijd[i] <= huidigeTijd && genormaliseerdeTAT>max && eindtijd[i] == 0) {
                 max = genormaliseerdeTAT;
-                processWithHRRN = i;
+                procesMetHRRN = i;
             }
         }
-        return processWithHRRN;
+        return procesMetHRRN;
     }
 
 
@@ -181,14 +181,14 @@ public class Main {
 
     // -------------------- Round Robin (RR) --------------------
     static void berekenRR(int timeslice) {
-        System.arraycopy(servicetime, 0, remainingtime, 0, aantalProcessen);
+        System.arraycopy(bedieningstijd, 0, resterendeTijd, 0, aantalProcessen);
         huidigeTijd = 0;
         vulNogToekomendeProcesses();
         int process = -1;
-        while (stillRemainingTime()) {
+        while (overigeResterendeTijd()) {
             checkOpToekomendeProcessesRR();
-            if ( process != -1 && remainingtime[process] > 0)
-                readyqueue.add(process);
+            if ( process != -1 && resterendeTijd[process] > 0)
+                readyQueue.add(process);
             process = schedulingProcessFromReadyQueueRR(timeslice);
         }
         for (int i = 0; i < aantalProcessen; i++) {
@@ -196,38 +196,38 @@ public class Main {
         }
     }
     private static void vulNogToekomendeProcesses() {
-        readyqueue = new LinkedList<>();
+        readyQueue = new LinkedList<>();
         nogToekomendeProcesses = new LinkedList<>();
         for (int i = 0; i<aantalProcessen; i++)
             nogToekomendeProcesses.add(i);
     }
     private static void checkOpToekomendeProcessesRR() {
         int toekomendprocess;
-        while (!nogToekomendeProcesses.isEmpty() && arrivaltime[nogToekomendeProcesses.peek()] == huidigeTijd) {
+        while (!nogToekomendeProcesses.isEmpty() && aankomsttijd[nogToekomendeProcesses.peek()] == huidigeTijd) {
             toekomendprocess = nogToekomendeProcesses.remove();
-            readyqueue.add(toekomendprocess);
-            starttime[toekomendprocess] = huidigeTijd;
+            readyQueue.add(toekomendprocess);
+            starttijd[toekomendprocess] = huidigeTijd;
         }
     }
     private static int schedulingProcessFromReadyQueueRR(int timeslice) {
-        if (readyqueue.isEmpty())
+        if (readyQueue.isEmpty())
             huidigeTijd++;
         else {
-            int processWithRR = readyqueue.remove();
-            if (remainingtime[processWithRR] > timeslice) {
+            int processWithRR = readyQueue.remove();
+            if (resterendeTijd[processWithRR] > timeslice) {
                 for (int i = 0; i<timeslice; i++) {
                     checkOpToekomendeProcessesRR();
                     huidigeTijd++;
                 }
-                remainingtime[processWithRR] -= timeslice;
+                resterendeTijd[processWithRR] -= timeslice;
                 return processWithRR;
-            } else if (remainingtime[processWithRR] > 0 && remainingtime[processWithRR] <= timeslice ) {
-                for (int i = 0; i<remainingtime[processWithRR]; i++) {
+            } else if (resterendeTijd[processWithRR] > 0 && resterendeTijd[processWithRR] <= timeslice ) {
+                for (int i = 0; i< resterendeTijd[processWithRR]; i++) {
                     checkOpToekomendeProcessesRR();
                     huidigeTijd++;
                 }
-                endtime[processWithRR] = huidigeTijd;
-                remainingtime[processWithRR] = 0;
+                eindtijd[processWithRR] = huidigeTijd;
+                resterendeTijd[processWithRR] = 0;
             }
         }
         return -1;
@@ -240,17 +240,17 @@ public class Main {
     // -------------------- MultiLevel FeedBack (MLFB) --------------------
     static void berekenMLFB(int versie){
         maakQueues();
-        System.arraycopy(servicetime, 0, remainingtime, 0, aantalProcessen);
+        System.arraycopy(bedieningstijd, 0, resterendeTijd, 0, aantalProcessen);
         huidigeTijd = 0;
         vulNogToekomendeProcesses();
         if (versie == 1) {
-            while (stillRemainingTime()) {
+            while (overigeResterendeTijd()) {
                 checkOpToekomendeProcessesMLFB();
                 schedulingProcessesMLFBv1();
             }
         }
         else if (versie == 2) {
-            while (stillRemainingTime()) {
+            while (overigeResterendeTijd()) {
                 checkOpToekomendeProcessesMLFB();
                 schedulingProcessesMLFBv2();
             }
@@ -264,70 +264,70 @@ public class Main {
         int processWithMLFB = -1;
         if (!queue1.isEmpty()) {
             processWithMLFB = queue1.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue2.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue2.isEmpty()) {
             processWithMLFB = queue2.remove();
-            if (remainingtime[processWithMLFB] > 2) {
+            if (resterendeTijd[processWithMLFB] > 2) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue3.add(processWithMLFB);
-            } else if (remainingtime[processWithMLFB] > 0) {
-                for (int i = 0; i<remainingtime[processWithMLFB]; i++) {
+            } else if (resterendeTijd[processWithMLFB] > 0) {
+                for (int i = 0; i< resterendeTijd[processWithMLFB]; i++) {
                     checkOpToekomendeProcessesMLFB();
                     huidigeTijd++;
                 }
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue3.isEmpty()) {
             processWithMLFB = queue3.remove();
-            if (remainingtime[processWithMLFB] > 4) {
+            if (resterendeTijd[processWithMLFB] > 4) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue4.add(processWithMLFB);
-            } else if (remainingtime[processWithMLFB] > 0 ) {
-                for (int i = 0; i<remainingtime[processWithMLFB]; i++) {
+            } else if (resterendeTijd[processWithMLFB] > 0 ) {
+                for (int i = 0; i< resterendeTijd[processWithMLFB]; i++) {
                     checkOpToekomendeProcessesMLFB();
                     huidigeTijd++;
                 }
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue4.isEmpty()) {
             processWithMLFB = queue4.remove();
-            if (remainingtime[processWithMLFB] > 8) {
+            if (resterendeTijd[processWithMLFB] > 8) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue5.add(processWithMLFB);
-            } else if (remainingtime[processWithMLFB] > 0) {
-                for (int i = 0; i<remainingtime[processWithMLFB]; i++) {
+            } else if (resterendeTijd[processWithMLFB] > 0) {
+                for (int i = 0; i< resterendeTijd[processWithMLFB]; i++) {
                     checkOpToekomendeProcessesMLFB();
                     huidigeTijd++;
                 }
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue5.isEmpty()) {
             processWithMLFB = queue5.remove();
-            if (remainingtime[processWithMLFB] > 16) {
+            if (resterendeTijd[processWithMLFB] > 16) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue5.add(processWithMLFB);
-            } else if (remainingtime[processWithMLFB] > 0) {
-                for (int i = 0; i<remainingtime[processWithMLFB]; i++) {
+            } else if (resterendeTijd[processWithMLFB] > 0) {
+                for (int i = 0; i< resterendeTijd[processWithMLFB]; i++) {
                     checkOpToekomendeProcessesMLFB();
                     huidigeTijd++;
                 }
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
     }
@@ -336,62 +336,62 @@ public class Main {
         int processWithMLFB = -1;
         if (!queue1.isEmpty()) {
             processWithMLFB = queue1.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue2.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue2.isEmpty()) {
             processWithMLFB = queue2.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue3.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue3.isEmpty()) {
             processWithMLFB = queue3.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue4.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue4.isEmpty()) {
             processWithMLFB = queue4.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue5.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
         else if (!queue5.isEmpty()) {
             processWithMLFB = queue5.remove();
-            if (remainingtime[processWithMLFB] > 1) {
+            if (resterendeTijd[processWithMLFB] > 1) {
                 remainingtimehigherthentimeslice(processWithMLFB);
                 queue5.add(processWithMLFB);
             } else {
                 checkOpToekomendeProcessesMLFB();
                 huidigeTijd++;
-                endtime[processWithMLFB] = huidigeTijd;
-                remainingtime[processWithMLFB] = 0;
+                eindtijd[processWithMLFB] = huidigeTijd;
+                resterendeTijd[processWithMLFB] = 0;
             }
         }
     }
@@ -399,15 +399,15 @@ public class Main {
     private static void remainingtimehigherthentimeslice(int process) {
         huidigeTijd++;
         checkOpToekomendeProcessesMLFB();
-        remainingtime[process]--;
+        resterendeTijd[process]--;
     }
 
     private static void checkOpToekomendeProcessesMLFB() {
         int toekomendprocess;
-        while (!nogToekomendeProcesses.isEmpty() && arrivaltime[nogToekomendeProcesses.peek()] == huidigeTijd) {
+        while (!nogToekomendeProcesses.isEmpty() && aankomsttijd[nogToekomendeProcesses.peek()] == huidigeTijd) {
             toekomendprocess = nogToekomendeProcesses.remove();
             queue1.add(toekomendprocess);
-            starttime[toekomendprocess] = huidigeTijd;
+            starttijd[toekomendprocess] = huidigeTijd;
         }
     }
     private static void maakQueues() {

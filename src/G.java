@@ -27,7 +27,7 @@ public class G extends JPanel{
             g1.setPaint(Color.BLUE);
             for (int i = 0; i < Main.aantalProcessen; i++) {
                 double x1 = mar + i * x;
-                double y1 = height - mar - scale * Main.turnaroundtime[i];
+                double y1 = height - mar - scale * Main.omlooptijd[i];
                 g1.fill(new Ellipse2D.Double(x1 - 2, y1 - 2, 4, 4));
             }
 
@@ -36,8 +36,8 @@ public class G extends JPanel{
         private int getMax () {
             int max = -Integer.MAX_VALUE;
             for (int i = 0; i < Main.aantalProcessen; i++) {
-                if (Main.turnaroundtime[i] > max)
-                    max = Main.turnaroundtime[i];
+                if (Main.omlooptijd[i] > max)
+                    max = Main.omlooptijd[i];
             }
             return max;
         }

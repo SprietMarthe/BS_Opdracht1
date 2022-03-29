@@ -99,7 +99,7 @@ public class DrawGraph extends JPanel {
         int maxDataPoints = 16;
         int maxScore = 20;
         for (int i = 0; i<Main.aantalProcessen; i++){
-            scores[i] = Main.turnaroundtime[i]/Main.servicetime[i];
+            scores[i] = Main.omlooptijd[i]/Main.bedieningstijd[i];
         }
 
         DrawGraph mainPanel = new DrawGraph(scores);
