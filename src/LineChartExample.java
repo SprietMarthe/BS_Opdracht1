@@ -5,8 +5,11 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import java.io.Serial;
+
 public class LineChartExample extends JFrame {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public LineChartExample(String title) {
@@ -27,7 +30,7 @@ public class LineChartExample extends JFrame {
 
     private DefaultCategoryDataset createDataset() {
 
-        String series1 = "Visitor";
+        String series1 = "FCFS";
         String series2 = "Unique Visitor";
 
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -53,7 +56,7 @@ public class LineChartExample extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            LineChartExample example = new LineChartExample("Line Chart Example");
+            LineChartExample example = new LineChartExample("Uniprocessor Scheduling");
             example.setAlwaysOnTop(true);
             example.pack();
             example.setSize(600, 400);

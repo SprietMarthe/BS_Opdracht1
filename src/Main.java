@@ -42,7 +42,7 @@ public class Main {
         sc.close();
     }
 
-    private static void initialiseerArrays() {
+    static void initialiseerArrays() {
         pid = new int[aantalProcessen];
         aankomsttijd = new int[aantalProcessen];
         bedieningstijd = new int[aantalProcessen];
