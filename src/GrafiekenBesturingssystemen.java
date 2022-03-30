@@ -1,6 +1,8 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -17,9 +19,11 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 
-public class LineChartEx extends JFrame {
+import static java.lang.Math.log;
 
-    public LineChartEx() {
+public class GrafiekenBesturingssystemen extends JFrame {
+
+    public GrafiekenBesturingssystemen() {
         initUI();
     }
 
@@ -34,33 +38,53 @@ public class LineChartEx extends JFrame {
         add(chartPanel);
 
         pack();
-        setTitle("Scheduling Algoritmes");
+        setTitle("Scheduling Algoritms");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private XYDataset createDataset() {
-        Main.aantalProcessen=5;//TODO
         Main.initialiseerArrays();
         ReadXMLFile.readingXMLFile(Main.aantalProcessen, Main.pid, Main.aankomsttijd, Main.bedieningstijd);
-
-        Main.berekenFCFS();
-
-        var fcfs = new XYSeries("FCFS");//TODO
-        for (int i=0; i<Main.aantalProcessen; i++){
-            fcfs.add(Main.genormaliseerdeOmlooptijd[i], Main.bedieningstijd[i]);//TODO
-        }
         var dataset = new XYSeriesCollection();
-        dataset.addSeries(fcfs);
-
+        Main.berekenFCFS();
+        berekenAlgoritme(dataset, "FCFS");
+        Main.berekenSJF();
+        berekenAlgoritme(dataset, "SJF");
+        Main.berekenSRT();
+        berekenAlgoritme(dataset, "SRT");
+        Main.berekenRR(1);
+        berekenAlgoritme(dataset, "RR q=1");
+        Main.berekenRR(4);
+        berekenAlgoritme(dataset, "RR q=4");
+        Main.berekenRR(8);
+        berekenAlgoritme(dataset, "RR q=8");
+        Main.berekenHRRN();
+        berekenAlgoritme(dataset, "HRRN");
         return dataset;
+    }
+
+    private void berekenAlgoritme(XYSeriesCollection dataset, String algoritme) {
+        var serie = new XYSeries(algoritme);
+        int percentielteller = 0;
+        int percentielgrootte = (Main.aantalProcessen/100);
+        int genormOmlooptijd = 0;
+        for (int i=0; i<Main.aantalProcessen; i++){
+            genormOmlooptijd += Main.genormaliseerdeOmlooptijd[i];
+            if (percentielteller != 0 && percentielteller%percentielgrootte == 0) {
+                serie.add(percentielteller/percentielgrootte, genormOmlooptijd/percentielgrootte);
+                genormOmlooptijd=0;
+                }
+            percentielteller++;
+        }
+        dataset.addSeries(serie);
     }
 
     private JFreeChart createChart(XYDataset dataset) {
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Scheduling Algoritmes",
-                "Bedieningstijd 10000 processen",
+                "Bedieningstijd voor 10000 (percentiel)",
                 "Genormaliseerde omlooptijd",
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -68,13 +92,15 @@ public class LineChartEx extends JFrame {
                 true,
                 false
         );
-
         XYPlot plot = chart.getXYPlot();
 
         var renderer = new XYLineAndShapeRenderer(true, false);
         renderer.setSeriesPaint(0, Color.RED);
         renderer.setSeriesStroke(0, new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         renderer.setDrawSeriesLineAsPath(true);
+
+        NumberAxis yAxis = new LogarithmicAxis("Genormaliseerde omlooptijd");
+        plot.setRangeAxis(yAxis);
 
         plot.setRenderer(renderer);
         plot.setBackgroundPaint(Color.white);
@@ -84,6 +110,8 @@ public class LineChartEx extends JFrame {
 
         plot.setDomainGridlinesVisible(true);
         plot.setDomainGridlinePaint(Color.BLACK);
+
+
 
         chart.getLegend().setFrame(BlockBorder.NONE);
 
@@ -95,8 +123,8 @@ public class LineChartEx extends JFrame {
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
-            var fcfs = new LineChartEx();
-            fcfs.setVisible(true);
+            var graph = new GrafiekenBesturingssystemen();
+            graph.setVisible(true);
         });
     }
 }

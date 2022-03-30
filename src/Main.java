@@ -8,17 +8,17 @@ import java.util.Scanner;
 
 public class Main {
     static int aantalProcessen, huidigeTijd;
-    static int[] pid, aankomsttijd, bedieningstijd, resterendeTijd, starttijd, eindtijd, omlooptijd, wachttijd;
-    static double[] genormaliseerdeOmlooptijd;                                              // voor visueel nakijken
+    static int[] pid, aankomsttijd, bedieningstijd, resterendeTijd, starttijd, eindtijd, omlooptijd;
+    static double[] genormaliseerdeOmlooptijd, wachttijd;
     static double gemiddeldeOmlooptijd, gemiddeldeGenormaliseerdeOmlooptijd, gemiddeldeWachttijd;
 
     static Queue<Integer> readyQueue, nogToekomendeProcesses, queue1 , queue2, queue3, queue4, queue5;
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Geef het scheduling algortime in (FCFS/SJF/SRT/HRRN/RR/MLFBv1/MLFBv2):");
+        System.out.print("Geef het scheduling algortime in (FCFS/SJF/SRT/HRRN/RR/MLFBv1/MLFBv2/allemaal):");
         String algoritme = sc.next();
-        System.out.print("Geef het aantal processen in (5/10000/20000/50000):");
+        System.out.print("Geef het aantal processen in (10000/20000/50000):");
         aantalProcessen = sc.nextInt();
 
         initialiseerArrays();
@@ -35,6 +35,7 @@ public class Main {
                 berekenRR(timeslice);}
             case "MLFBv1" -> berekenMLFB(1);
             case "MLFBv2" -> berekenMLFB(2);
+            case "allemaal" -> GrafiekenBesturingssystemen.main(argv);
             default -> {
             }
         }
@@ -51,7 +52,7 @@ public class Main {
         eindtijd = new int[aantalProcessen];
         omlooptijd = new int[aantalProcessen];
         genormaliseerdeOmlooptijd = new double[aantalProcessen];
-        wachttijd = new int[aantalProcessen];
+        wachttijd = new double[aantalProcessen];
 
         gemiddeldeOmlooptijd = 0;
         gemiddeldeGenormaliseerdeOmlooptijd = 0;
@@ -59,7 +60,7 @@ public class Main {
     }
     private static void berekenGevraagde(int i) {
         wachttijd[i] = eindtijd[i]- aankomsttijd[i]-bedieningstijd[i];
-        omlooptijd[i] = bedieningstijd[i] + wachttijd[i];
+        omlooptijd[i] = (int) (bedieningstijd[i] + wachttijd[i]);
         genormaliseerdeOmlooptijd[i] = (double)omlooptijd[i]/(double)bedieningstijd[i];
 
         gemiddeldeWachttijd += wachttijd[i];
