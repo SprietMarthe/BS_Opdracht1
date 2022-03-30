@@ -8,14 +8,15 @@ import java.util.Scanner;
 
 public class Main {
     static int aantalProcessen, huidigeTijd;
-    static int[] pid, aankomsttijd, bedieningstijd, resterendeTijd, starttijd, eindtijd, omlooptijd, wachttijd, genormaliseerdeOmlooptijd;                                              // voor visueel nakijken
+    static int[] pid, aankomsttijd, bedieningstijd, resterendeTijd, starttijd, eindtijd, omlooptijd, wachttijd;
+    static double[] genormaliseerdeOmlooptijd;                                              // voor visueel nakijken
     static double gemiddeldeOmlooptijd, gemiddeldeGenormaliseerdeOmlooptijd, gemiddeldeWachttijd;
 
     static Queue<Integer> readyQueue, nogToekomendeProcesses, queue1 , queue2, queue3, queue4, queue5;
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Geef het scheduling algortime in (FCFS/SRT/HRRN/RR/MLFBv1/MLFBv2):");
+        System.out.print("Geef het scheduling algortime in (FCFS/SJF/SRT/HRRN/RR/MLFBv1/MLFBv2):");
         String algoritme = sc.next();
         System.out.print("Geef het aantal processen in (5/10000/20000/50000):");
         aantalProcessen = sc.nextInt();
@@ -25,6 +26,7 @@ public class Main {
 
         switch (algoritme) {
             case "FCFS" -> berekenFCFS();
+            case "SJF" -> berekenSJF();
             case "SRT" -> berekenSRT();
             case "HRRN" -> berekenHRRN();
             case "RR" -> {
@@ -48,6 +50,7 @@ public class Main {
         starttijd = new int[aantalProcessen];
         eindtijd = new int[aantalProcessen];
         omlooptijd = new int[aantalProcessen];
+        genormaliseerdeOmlooptijd = new double[aantalProcessen];
         wachttijd = new int[aantalProcessen];
 
         gemiddeldeOmlooptijd = 0;
@@ -57,10 +60,11 @@ public class Main {
     private static void berekenGevraagde(int i) {
         wachttijd[i] = eindtijd[i]- aankomsttijd[i]-bedieningstijd[i];
         omlooptijd[i] = bedieningstijd[i] + wachttijd[i];
+        genormaliseerdeOmlooptijd[i] = (double)omlooptijd[i]/(double)bedieningstijd[i];
 
         gemiddeldeWachttijd += wachttijd[i];
-        gemiddeldeGenormaliseerdeOmlooptijd += omlooptijd[i];
-        gemiddeldeOmlooptijd += (double) omlooptijd[i]/bedieningstijd[i];
+        gemiddeldeGenormaliseerdeOmlooptijd += genormaliseerdeOmlooptijd[i];
+        gemiddeldeOmlooptijd += omlooptijd[i];
     }
     private static boolean overigeResterendeTijd() {
         int resterendeTijd=0;
@@ -77,12 +81,12 @@ public class Main {
         return aantalUnfinished > 0;
     }
     private static void printResultaten() {
-        System.out.println("\npid  aankomst  bedienings  start   eind omloop wacht - tijd ");
+        System.out.println("\npid\t\taankomst\t\tbedienings\t\tstart\t\teind\t\tomloop\t\tgenormaliseerde omloop\t\twacht - tijd ");
         for(int  i = 0; i< aantalProcessen;  i++) {
-            System.out.println(pid[i] + "\t\t" + aankomsttijd[i] + "\t\t" + bedieningstijd[i] + "\t\t" + starttijd[i]+ "\t\t" + eindtijd[i] + "\t\t" + omlooptijd[i] + "\t\t"  + wachttijd[i] ) ;
+            System.out.println(pid[i] + "\t\t" + aankomsttijd[i] + "\t\t\t\t" + bedieningstijd[i] + "\t\t\t\t" + starttijd[i]+ "\t\t\t" + eindtijd[i] + "\t\t\t" + omlooptijd[i] + "\t\t\t"  + genormaliseerdeOmlooptijd[i] + "\t\t\t\t\t\t\t" + wachttijd[i] ) ;
         }
-        System.out.print("\ngemiddelde omlooptijd: "+ (gemiddeldeGenormaliseerdeOmlooptijd /aantalProcessen));
-        System.out.print("\ngemiddelde genormaliseerde omlooptijd: "+ (gemiddeldeOmlooptijd /aantalProcessen));
+        System.out.print("\ngemiddelde omlooptijd: "+ (gemiddeldeOmlooptijd /aantalProcessen));
+        System.out.print("\ngemiddelde genormaliseerde omlooptijd: "+ (gemiddeldeGenormaliseerdeOmlooptijd /aantalProcessen));
         System.out.print("\ngemiddelde wachttijd: "+ (gemiddeldeWachttijd /aantalProcessen));
     }
 
@@ -106,6 +110,32 @@ public class Main {
 
 
 
+    // ------------------- Shortest Job First (SJF) --------------------------
+    static void berekenSJF(){
+        int[] bedieningstijdKopie = new int[aantalProcessen];
+        System.arraycopy(bedieningstijd, 0, bedieningstijdKopie, 0, aantalProcessen);
+
+        int aantalJiffys = 0;
+        for (int i=0; i<aantalProcessen; i++) {
+            int min = Integer.MAX_VALUE;
+            int sPID = 0;
+            for(int j=0; j<aantalProcessen; j++ ) {
+                if (aankomsttijd[j] <= aantalJiffys) {
+                    if(bedieningstijdKopie[j]<min) {
+                        min = bedieningstijdKopie[j];
+                        sPID = j;
+                    }
+                }
+            }
+            starttijd[sPID] = aantalJiffys;
+            eindtijd[sPID] = aantalJiffys + bedieningstijd[sPID];
+            berekenGevraagde(sPID);
+
+            //zodat deze niet meer als minimum kan gezien worden
+            bedieningstijdKopie[sPID] = Integer.MAX_VALUE;
+            aantalJiffys += bedieningstijd[sPID];
+        }
+    }
 
 
     // -------------------- Shortest Remaining Time (SRT) --------------------
@@ -129,7 +159,7 @@ public class Main {
     }
     private static int kleinsteTijdSRT() {
         int procesMetSRT = -1;
-        int min = Integer.MIN_VALUE-8;
+        int min = Integer.MAX_VALUE;
         for (int i = 0; i<aantalProcessen; i++)
             if (aankomsttijd[i]<=huidigeTijd && resterendeTijd[i]<min && resterendeTijd[i] != 0) {
                 min = resterendeTijd[i];
@@ -184,12 +214,12 @@ public class Main {
         System.arraycopy(bedieningstijd, 0, resterendeTijd, 0, aantalProcessen);
         huidigeTijd = 0;
         vulNogToekomendeProcesses();
-        int process = -1;
+        int proces = -1;
         while (overigeResterendeTijd()) {
             checkOpToekomendeProcessesRR();
-            if ( process != -1 && resterendeTijd[process] > 0)
-                readyQueue.add(process);
-            process = schedulingProcessFromReadyQueueRR(timeslice);
+            if ( proces != -1 && resterendeTijd[proces] > 0)
+                readyQueue.add(proces);
+            proces = schedulingProcesVanReadyQueueRR(timeslice);
         }
         for (int i = 0; i < aantalProcessen; i++) {
             berekenGevraagde(i);
@@ -202,14 +232,14 @@ public class Main {
             nogToekomendeProcesses.add(i);
     }
     private static void checkOpToekomendeProcessesRR() {
-        int toekomendprocess;
+        int toekomendproces;
         while (!nogToekomendeProcesses.isEmpty() && aankomsttijd[nogToekomendeProcesses.peek()] == huidigeTijd) {
-            toekomendprocess = nogToekomendeProcesses.remove();
-            readyQueue.add(toekomendprocess);
-            starttijd[toekomendprocess] = huidigeTijd;
+            toekomendproces = nogToekomendeProcesses.remove();
+            readyQueue.add(toekomendproces);
+            starttijd[toekomendproces] = huidigeTijd;
         }
     }
-    private static int schedulingProcessFromReadyQueueRR(int timeslice) {
+    private static int schedulingProcesVanReadyQueueRR(int timeslice) {
         if (readyQueue.isEmpty())
             huidigeTijd++;
         else {
