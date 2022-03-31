@@ -31,7 +31,7 @@ public class Main {
 
     public static void main(String[] argv) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Geef het scheduling algortime in (FCFS/SJF/SRT/HRRN/RR/MLFBv1/MLFBv2):");
+        System.out.print("Geef het scheduling algortime in (FCFS/SJF/SRT/HRRN/RR/MLFBv1/MLFBv2/grafieken):");
         String algoritme = sc.next();
         System.out.print("Geef het aantal processen in (5/10000/20000/50000):");
         aantalProcessen = sc.nextInt();
@@ -51,6 +51,11 @@ public class Main {
             }
             case "MLFBv1" -> berekenMLFB(1);
             case "MLFBv2" -> berekenMLFB(2);
+            case "grafieken" -> {
+                System.out.print("Maak een keuze tussen 1 voor 'normTAT' en 2 voor 'wachttijd':");
+                int keuze = sc.nextInt();
+                GrafiekenBesturingssystemen.main(argv, keuze);
+            }
             default -> {
             }
         }
@@ -58,7 +63,7 @@ public class Main {
         sc.close();
     }
 
-    private static void initialiseerArrays() {
+    static void initialiseerArrays() {
         pid = new int[aantalProcessen];
         aankomsttijd = new int[aantalProcessen];
         bedieningstijd = new int[aantalProcessen];
