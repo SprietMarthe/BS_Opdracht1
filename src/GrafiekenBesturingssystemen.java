@@ -18,7 +18,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.util.Objects;
 
 public class GrafiekenBesturingssystemen extends JFrame {
 
@@ -27,7 +26,6 @@ public class GrafiekenBesturingssystemen extends JFrame {
     }
 
     private void initUI(int i) {
-
         XYDataset datasetnormTAT = createDataset(i);
         JFreeChart chart = createChart("Genormaliseerde omlooptijd ifv percentiel van nodige tijd", "Genormaliseerde omlooptijd", datasetnormTAT);
         XYDataset datasetwachttijd = createDataset(i);
@@ -44,7 +42,6 @@ public class GrafiekenBesturingssystemen extends JFrame {
         setTitle("Scheduling Algoritms");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Tweede chart
 
     }
 
@@ -67,10 +64,10 @@ public class GrafiekenBesturingssystemen extends JFrame {
         berekenAlgoritme(dataset, dataset2, "RR q=8");
         Main.berekenHRRN();
         berekenAlgoritme(dataset, dataset2, "HRRN");
-        Main.berekenMLFB(1);
-        berekenAlgoritme(dataset, dataset2, "MLFB q=1");
-        Main.berekenMLFB(2);
-        berekenAlgoritme(dataset, dataset2, "MLFB q=2^i");
+//        Main.berekenMLFB(1);
+//        berekenAlgoritme(dataset, dataset2, "MLFB q=1");
+//        Main.berekenMLFB(2);
+//        berekenAlgoritme(dataset, dataset2, "MLFB q=2^i");
         if (i==1) return dataset;
         else return dataset2;
     }
@@ -140,7 +137,7 @@ public class GrafiekenBesturingssystemen extends JFrame {
 
     public static void main(String[] args, int i) {
         EventQueue.invokeLater(() -> {
-            var graph = new GrafiekenBesturingssystemen(1);
+            var graph = new GrafiekenBesturingssystemen(i);
             graph.setVisible(true);
         });
     }
